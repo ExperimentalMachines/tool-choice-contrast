@@ -46,4 +46,13 @@ extend-exclude = ["third_party"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
+# The vendored tree must resolve so our own annotations against it are checked,
+# but it is never itself type-checked: it is byte-identical to upstream and
+# fixing a type error there would fork it.
+mypy_path = ["src", "third_party/opengrad"]
 exclude = ["third_party/"]
+
+[[tool.mypy.overrides]]
+module = "opengrad.*"
+ignore_errors = true
+follow_imports = "silent"

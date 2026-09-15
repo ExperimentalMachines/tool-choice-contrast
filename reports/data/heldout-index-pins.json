@@ -1,0 +1,35 @@
+{
+  "artifact_kind": "HELDOUT_INDEX_PINS",
+  "cross_check": {
+    "claims": {
+      "llm_judge_distinct_prompts": 286,
+      "llm_judge_prompts_contained_in_mcq": true,
+      "mcq_distinct_prompts": 2295
+    },
+    "note": "Reproducing all three published numbers from the upstream files is what licenses reimplementing normalize_prompt instead of vendoring it.",
+    "reproduced": true,
+    "reproduced_at_opengrad_commit": "308b4ca63b974ff413ad0cf687f98dcbdab0f0e2",
+    "source": "OpenGrad docs/research/study-002/32-CLASSIFIER-INPUT-CONTRACT.md, table in section 5"
+  },
+  "files": {
+    "test/when2call_test_llm_judge.jsonl": {
+      "bytes": 1757306,
+      "distinct_normalized_prompts": 286,
+      "rows": 300,
+      "sha256": "0b710578e3b02479e5acf5688140ec5edf71383fa5c093481c7536b57fd13b25"
+    },
+    "test/when2call_test_mcq.jsonl": {
+      "bytes": 20424385,
+      "distinct_normalized_prompts": 2295,
+      "rows": 3652,
+      "sha256": "8c3694e583eeeb8dbc297e6cd90da70efc68efa4b6adb7227523e828c6b7b14c"
+    }
+  },
+  "not_pinned_and_why": {
+    ".cache/normalization/raw/when2call_test_mcq.parquet": "OpenGrad records sha256 17cdf1a0... for this file, but no committed code creates it. scripts/rebuild_eval_splits.py fetches the same upstream revision yet writes to data/raw/ via pyarrow.parquet.write_table, whose output is not byte-stable across pyarrow versions. Unreproducible from a clean clone, so not used as a pin."
+  },
+  "purpose": "Evaluation material this corpus must not overlap. Pinned at the upstream source rather than at OpenGrad's derived parquet, because nothing in OpenGrad produces that parquet and its recorded sha256 cannot be reproduced from a clean clone.",
+  "repository": "nvidia/When2Call",
+  "revision": "0582f7749df63a96fdc3070932e83e72396ace53",
+  "schema_version": 1
+}

@@ -60,3 +60,32 @@ TARGET_STEMS: dict[str, int] = {"S": 100, "E": 200}
 # Pre-registered before any run. 300 stems cannot support a 5pp guard; see the
 # power table in the plan. Claiming 5pp on this corpus would be false.
 GUARD_CLAIM_PP: dict[str, float] = {"S": 8.8, "E": 6.2}
+
+
+# ── held-out material the corpus must not overlap ──────────────────────────────────────────────
+#
+# OpenGrad pins these as derived parquet files under a gitignored .cache directory, and nothing in
+# that repository produces them -- so those hashes cannot be reproduced from a clean clone. We pin
+# the UPSTREAM files instead, which are the bytes on the Hub and therefore genuinely reproducible.
+#
+# Verified equivalent: normalizing `question` over these two files yields 2,295 distinct MCQ
+# prompts and 286 llm-judge prompts, all 286 contained in the MCQ set -- matching Study 002 doc 32
+# exactly. See reports/data/heldout-index-pins.json.
+HELDOUT_REPOSITORY = "nvidia/When2Call"
+HELDOUT_REVISION = "0582f7749df63a96fdc3070932e83e72396ace53"
+HELDOUT_FILES: dict[str, str] = {
+    "test/when2call_test_mcq.jsonl":
+        "8c3694e583eeeb8dbc297e6cd90da70efc68efa4b6adb7227523e828c6b7b14c",
+    "test/when2call_test_llm_judge.jsonl":
+        "0b710578e3b02479e5acf5688140ec5edf71383fa5c093481c7536b57fd13b25",
+}
+
+
+def normalize_prompt(text: str) -> str:
+    """Case-folded, whitespace-collapsed text: the P-DET-v1 prompt-matching rule.
+
+    Reimplemented rather than vendored: it lives in ``opengrad.data.classifier_input``, which
+    imports the normalization-v3 builder and its pyarrow dependency. The cross-check above is what
+    makes the reimplementation safe -- it reproduces upstream's published counts exactly.
+    """
+    return " ".join(str(text).split()).casefold()

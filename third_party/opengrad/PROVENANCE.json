@@ -77,6 +77,13 @@
     "src/opengrad/data/renderers.py -- prompt rendering is model-specific and is reimplemented in toolchoice.harness.prompt against the published chat template."
   ],
   "package": "opengrad",
+  "pin_history": [
+    {
+      "commit": "62a5721b44cb07ebdb26de706be4915d9ddd8c71",
+      "reason": "Upstream advanced to the Study 002 merge. None of the vendored files changed between the two commits -- verified file by file -- so the pin moved and not a single byte did. Re-pinned so a reader does not have to check whether an older commit id means the copy is stale.",
+      "superseded_by": "308b4ca63b974ff413ad0cf687f98dcbdab0f0e2"
+    }
+  ],
   "replaced_files": {
     "opengrad/data/__init__.py": {
       "bytes": 643,
@@ -89,7 +96,7 @@
     "pyyaml (opengrad/data/behavior.py module-level import only; DECISIONS itself needs none)"
   ],
   "schema_version": 1,
-  "upstream_commit": "62a5721b44cb07ebdb26de706be4915d9ddd8c71",
+  "upstream_commit": "308b4ca63b974ff413ad0cf687f98dcbdab0f0e2",
   "upstream_repo": "https://github.com/arjhinety/OpenGrad",
   "vendoring_rationale": "The upstream core declares dependencies = []; a git dependency would make a published benchmark's scorer contingent on a third-party repository staying reachable at a mutable ref. Reimplementation is rejected because parse_qwen_native_output is deliberately byte-compatible with openweights' Kotlin ToolCallParser, and a third copy of a three-way contract has nothing keeping it aligned."
 }

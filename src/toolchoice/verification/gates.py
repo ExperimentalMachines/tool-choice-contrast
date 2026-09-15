@@ -15,6 +15,7 @@ from typing import Any
 
 from opengrad.verification.accounting import (
     BLOCKED_OPTIONAL_DEPENDENCY,
+    CONDITIONALLY_REQUIRED,
     OPTIONAL,
     PASS,
     REQUIRED_NONEMPTY,
@@ -118,7 +119,42 @@ def gate_mode_balance(items: Sequence[dict[str, Any]], minimum: int) -> Validati
     )
 
 
-def run_gates(items: Sequence[dict[str, Any]], *, minimum_per_mode: int) -> VerificationReport:
+def gate_adjudication(items: Sequence[dict[str, Any]]) -> ValidationResult:
+    """A frozen release contains zero PENDING items. Unlabelled is a build state, not a release."""
+    from toolchoice.population.record import PENDING
+
+    pending = [i["example_id"] for i in items if i["label_provenance"]["status"] == PENDING]
+    return ValidationResult(
+        name="G7_adjudication", policy=REQUIRED_NONEMPTY,
+        discovered=len(items), checked=len(items),
+        passed=len(items) - len(pending), failed=len(pending),
+        errors=[f"{e}: PENDING" for e in pending[:10]],
+        detail={"pending": len(pending)},
+    )
+
+
+def gate_partition(payload: dict[str, Any] | None) -> ValidationResult:
+    from toolchoice.population.partition import check_integrity
+
+    if payload is None:
+        return ValidationResult(
+            name="G11_partition", policy=CONDITIONALLY_REQUIRED,
+            discovered=0, blocked=1, blocked_status=BLOCKED_OPTIONAL_DEPENDENCY,
+            blocked_reasons=["no partition artifact"], precondition="a partition has been drawn",
+        )
+    problems = check_integrity(payload)
+    stems = payload["sides"]["pilot"]["stems"] + payload["sides"]["reported"]["stems"]
+    return ValidationResult(
+        name="G11_partition", policy=REQUIRED_NONEMPTY,
+        discovered=stems, checked=stems,
+        passed=stems - len(problems), failed=len(problems), errors=problems[:10],
+    )
+
+
+def run_gates(
+    items: Sequence[dict[str, Any]], *, minimum_per_mode: int,
+    partition_payload: dict[str, Any] | None = None,
+) -> VerificationReport:
     report = VerificationReport(contract=CONTRACT)
     for result in (
         gate_structural(items),
@@ -126,6 +162,8 @@ def run_gates(items: Sequence[dict[str, Any]], *, minimum_per_mode: int) -> Veri
         gate_stem_invariance(items),
         gate_mode_balance(items, minimum_per_mode),
         gate_tool_context(items),
+        gate_adjudication(items),
+        gate_partition(partition_payload),
     ):
         report.add(result)
     return report
@@ -151,7 +189,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
 
     items = [json.loads(line) for line in args.population.read_text(encoding="utf-8").splitlines() if line]
-    report = run_gates(items, minimum_per_mode=args.minimum_per_mode)
+    partition_path = Path("reports/data/population-partition.json")
+    partition_payload = (
+        json.loads(partition_path.read_text(encoding="utf-8")) if partition_path.exists() else None
+    )
+    report = run_gates(items, minimum_per_mode=args.minimum_per_mode,
+                       partition_payload=partition_payload)
     if args.json:
         print(json.dumps({
             "schema_version": 1, "artifact_kind": "GATE_REPORT",

@@ -57,6 +57,50 @@ def _handle_stems_validate(args: argparse.Namespace, root: Path) -> int:
     return 0
 
 
+def _handle_population(args: argparse.Namespace, root: Path) -> int:
+    from toolchoice.population.build import build, verify
+
+    action = verify if args.verify else build
+    return action(root, stems_dir=args.stems_dir, pool_dir=args.tool_pool,
+                  out=args.out, manifest=args.manifest)
+
+
+def _handle_partition(args: argparse.Namespace, root: Path) -> int:
+    from toolchoice.population.partition import check_integrity, partition
+
+    population = root / args.population
+    if not population.exists():
+        print(f"no population at {args.population}")
+        return 2
+    records = [json.loads(line) for line in population.read_text(encoding="utf-8").splitlines() if line]
+    payload = partition(records, pilot_fraction=args.pilot_fraction)
+    problems = check_integrity(payload)
+    if problems:
+        for problem in problems:
+            print(f"  {problem}")
+        return 1
+
+    destination = root / args.out
+    if args.verify:
+        if not destination.exists():
+            print("VERIFY BLOCKED - no committed partition")
+            return 2
+        committed = json.loads(destination.read_text(encoding="utf-8"))
+        for side in ("pilot", "reported"):
+            if committed["sides"][side]["fingerprint"] != payload["sides"][side]["fingerprint"]:
+                print(f"VERIFY FAILED - {side} fingerprint moved")
+                return 1
+        print("VERIFY PASSED - both side fingerprints reproduce")
+        return 0
+
+    write_json_atomic(destination, payload)
+    for side in ("pilot", "reported"):
+        node = payload["sides"][side]
+        print(f"  {side:<9} {node['stems']:>4} stems  {node['items']:>4} items  {node['fingerprint'][:16]}")
+    print(f"wrote {destination.relative_to(root)}")
+    return 0
+
+
 def _handle_gates(args: argparse.Namespace, root: Path) -> int:
     from toolchoice.verification.gates import main as gates_main
 
@@ -85,6 +129,24 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--stems-dir", type=Path, default=Path("data/stems"))
     validate.add_argument("--tool-pool", type=Path, default=Path("data/tool_pool"))
     validate.set_defaults(handler=_handle_stems_validate)
+
+    population = subparsers.add_parser("population", help="build or verify the frozen population")
+    population_sub = population.add_subparsers(dest="population_command")
+    pop_build = population_sub.add_parser("build")
+    pop_build.add_argument("--stems-dir", type=Path, default=Path("data/stems"))
+    pop_build.add_argument("--tool-pool", type=Path, default=Path("data/tool_pool"))
+    pop_build.add_argument("--out", type=Path, default=Path("data/frozen/tcc-v1/population.jsonl"))
+    pop_build.add_argument("--manifest", type=Path, default=Path("reports/data/population-manifest.json"))
+    pop_build.add_argument("--verify", action="store_true",
+                           help="rebuild in memory and diff; writes nothing")
+    pop_build.set_defaults(handler=_handle_population)
+
+    pop_part = population_sub.add_parser("partition")
+    pop_part.add_argument("--population", type=Path, default=Path("data/frozen/tcc-v1/population.jsonl"))
+    pop_part.add_argument("--out", type=Path, default=Path("reports/data/population-partition.json"))
+    pop_part.add_argument("--pilot-fraction", type=float, default=0.25)
+    pop_part.add_argument("--verify", action="store_true")
+    pop_part.set_defaults(handler=_handle_partition)
 
     gates = subparsers.add_parser("gates", help="run the corpus gates")
     gates.add_argument("--population", type=Path, default=Path("data/frozen/tcc-v1/population.jsonl"))

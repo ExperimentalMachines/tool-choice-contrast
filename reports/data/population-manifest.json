@@ -1,0 +1,50 @@
+{
+  "artifact_kind": "POPULATION_MANIFEST",
+  "content_fingerprint": "094729214a6ef861e75f65b143b1251ed05410e9b9ac7c4ed95629c076b02fb8",
+  "corpus_id": "tcc-v1",
+  "counts": {
+    "by_arm": {
+      "E-absent": 3,
+      "E-applicable": 3,
+      "E-underspecified": 3,
+      "S-five": 6,
+      "S-none": 6,
+      "S-one": 6
+    },
+    "by_gold_decision": {
+      "ANSWER": 18,
+      "CALL": 3,
+      "CLARIFY": 3,
+      "UNSUPPORTED": 3
+    },
+    "by_label_status": {
+      "PENDING": 27
+    }
+  },
+  "determinism": {
+    "distractor_algorithm": "sha256(seed||stem_id||arm||pool_id)_ascending",
+    "distractor_seed": "tool-choice-contrast-distractors-v1",
+    "row_order": "sorted_by_example_id"
+  },
+  "frozen": false,
+  "population_file": "/Users/zeraphim/Documents/Files/ThisIsZeraphim/Open Source/ExperimentalMachines/tool-choice-contrast/data/frozen/tcc-v1/population.jsonl",
+  "population_file_sha256": "0d0adce9de0412e0de34837cdeb70e8ab1f796d7567ef82a2d1a051b7e2938d8",
+  "record_count": 27,
+  "record_fingerprint": "95760f9b31f2a34663d38f434e8de9803f7fc9d4f28e8e0c69c466b1acb17428",
+  "schema_version": 1,
+  "stem_count": 9,
+  "stem_source_files": {
+    "data/stems/E/banking.yaml": {
+      "sha256": "3946aa82c6c80d8f9d0af47dfb4eacdde759d97092bcc1347c1431594bda0881",
+      "stems": 3
+    },
+    "data/stems/S/gsm8k.yaml": {
+      "sha256": "b4665fe97388dcda699c452d0f9587df696aed4261eb3b3d637944d937b8e401",
+      "stems": 6
+    }
+  },
+  "upstream_pin": {
+    "commit": "62a5721b44cb07ebdb26de706be4915d9ddd8c71",
+    "repo": "https://github.com/arjhinety/OpenGrad"
+  }
+}

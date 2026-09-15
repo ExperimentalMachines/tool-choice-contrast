@@ -1,0 +1,85 @@
+# Family E seed stems, authored.
+#
+# Each needs state the model cannot hold -- a live balance, a private transaction -- so rubric
+# E.2.1 puts them in Family E. The underspecified extra is chosen under E.4.3: a parameter with no
+# conventional default. `as_of_date` would fail that test, because an assistant may reasonably
+# assume today, which would make answering without asking defensible.
+
+domain: finance
+stems:
+  - id: 1
+    family: E
+    question: "What is the current cleared balance on account 4471-9920?"
+    capability: retrieve a bank account balance
+    applicable_tool:
+      name: get_account_balance
+      description: Return the current cleared balance for one account.
+      parameters:
+        type: object
+        properties:
+          account_id: {type: string, description: "Account number, hyphenated."}
+        required: [account_id]
+        additionalProperties: false
+      bindings:
+        account_id: "4471-9920"
+    underspecified_extra:
+      parameter: authorising_staff_id
+      schema:
+        type: string
+        description: Identifier of the staff member authorising the lookup.
+      justification: >-
+        Who is authorising the lookup cannot be inferred from the question and has no conventional
+        default a reasonable assistant would assume (rubric E.4.2 condition 3).
+    absent_substitute: messaging/send_message@v1
+
+  - id: 2
+    family: E
+    question: "Move 250 from my savings account 8812-4400 to my current account."
+    capability: transfer funds between two accounts
+    applicable_tool:
+      name: transfer_funds
+      description: Move an amount from one account to another.
+      parameters:
+        type: object
+        properties:
+          source_account_id: {type: string, description: Account to debit.}
+          amount: {type: number, description: Amount to move.}
+        required: [source_account_id, amount]
+        additionalProperties: false
+      bindings:
+        source_account_id: "8812-4400"
+        amount: "250"
+    underspecified_extra:
+      parameter: destination_account_id
+      schema:
+        type: string
+        description: Account to credit.
+      justification: >-
+        The user says "my current account" without naming it, and a person may hold several. There
+        is no default the assistant may assume, so asking is the only defensible action.
+    absent_substitute: calendar/schedule_meeting@v1
+
+  - id: 3
+    family: E
+    question: "Was the direct debit to Northgate Utilities taken from account 2210-7781 this month?"
+    capability: inspect recent transactions on an account
+    applicable_tool:
+      name: list_transactions
+      description: List recent transactions for one account.
+      parameters:
+        type: object
+        properties:
+          account_id: {type: string, description: "Account number, hyphenated."}
+        required: [account_id]
+        additionalProperties: false
+      bindings:
+        account_id: "2210-7781"
+    underspecified_extra:
+      parameter: mandate_reference
+      schema:
+        type: string
+        description: The direct debit mandate reference to match against.
+      justification: >-
+        A payee name is not a mandate reference and one payee may hold several mandates. Nothing in
+        the question supplies it and there is no conventional default.
+    absent_substitute: logistics/track_parcel@v1

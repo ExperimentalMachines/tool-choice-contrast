@@ -1,0 +1,124 @@
+# The shared distractor pool.
+#
+# `general_purpose: true` marks the tools rubric S.3.3 bars from Family S permanently. They stay in
+# the pool because Family E may legitimately offer them: the bar is about a tool being applicable
+# to an arithmetic question, not about the tool being disreputable.
+
+tools:
+  - pool_id: travel/book_flight@v1
+    domain: travel
+    name: book_flight
+    description: Book a seat on a specific flight for a named passenger.
+    parameters:
+      type: object
+      properties:
+        flight_number: {type: string, description: Carrier flight number.}
+        passenger_name: {type: string, description: Full name as printed on the document.}
+      required: [flight_number, passenger_name]
+      additionalProperties: false
+
+  - pool_id: travel/hotel_availability@v1
+    domain: travel
+    name: hotel_availability
+    description: Check whether a hotel has rooms free on a given night.
+    parameters:
+      type: object
+      properties:
+        hotel_id: {type: string, description: Internal hotel identifier.}
+        night: {type: string, description: The night in question, ISO date.}
+      required: [hotel_id, night]
+      additionalProperties: false
+
+  - pool_id: calendar/schedule_meeting@v1
+    domain: calendar
+    name: schedule_meeting
+    description: Put a meeting on a calendar and invite the attendees.
+    parameters:
+      type: object
+      properties:
+        title: {type: string, description: Meeting title.}
+        attendee_ids: {type: array, items: {type: string}, description: Who to invite.}
+      required: [title, attendee_ids]
+      additionalProperties: false
+
+  - pool_id: calendar/cancel_event@v1
+    domain: calendar
+    name: cancel_event
+    description: Cancel a calendar event and notify its attendees.
+    parameters:
+      type: object
+      properties:
+        event_id: {type: string, description: Identifier of the event to cancel.}
+      required: [event_id]
+      additionalProperties: false
+
+  - pool_id: messaging/send_message@v1
+    domain: messaging
+    name: send_message
+    description: Send a direct message to one recipient.
+    parameters:
+      type: object
+      properties:
+        recipient_id: {type: string, description: Who receives the message.}
+        body: {type: string, description: Message text.}
+      required: [recipient_id, body]
+      additionalProperties: false
+
+  - pool_id: smarthome/set_thermostat@v1
+    domain: smarthome
+    name: set_thermostat
+    description: Set the target temperature for one thermostat.
+    parameters:
+      type: object
+      properties:
+        device_id: {type: string, description: Thermostat identifier.}
+        target_celsius: {type: number, description: Desired temperature.}
+      required: [device_id, target_celsius]
+      additionalProperties: false
+
+  - pool_id: media/play_track@v1
+    domain: media
+    name: play_track
+    description: Start playback of one track on a chosen speaker.
+    parameters:
+      type: object
+      properties:
+        track_id: {type: string, description: Track identifier.}
+        speaker_id: {type: string, description: Where to play it.}
+      required: [track_id, speaker_id]
+      additionalProperties: false
+
+  - pool_id: logistics/track_parcel@v1
+    domain: logistics
+    name: track_parcel
+    description: Return the current transit status of one parcel.
+    parameters:
+      type: object
+      properties:
+        tracking_number: {type: string, description: Carrier tracking number.}
+      required: [tracking_number]
+      additionalProperties: false
+
+  - pool_id: weather/forecast@v1
+    domain: weather
+    name: forecast
+    description: Return the forecast for a place on a given day.
+    parameters:
+      type: object
+      properties:
+        place: {type: string, description: Place name.}
+        day: {type: string, description: ISO date.}
+      required: [place, day]
+      additionalProperties: false
+
+  - pool_id: general/calculator@v1
+    domain: general
+    name: calculator
+    description: Evaluate an arithmetic expression and return the result.
+    general_purpose: true
+    parameters:
+      type: object
+      properties:
+        expression: {type: string, description: The expression to evaluate.}
+      required: [expression]
+      additionalProperties: false

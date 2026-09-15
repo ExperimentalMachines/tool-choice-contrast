@@ -1,0 +1,81 @@
+{
+  "algorithm": "stratified_by_family_and_gold_multiset__sha256(seed||stem_id)_ascending",
+  "artifact_kind": "EVAL_PARTITION",
+  "partition_unit": "stem_id",
+  "per_class": {
+    "E:CALL+CLARIFY+UNSUPPORTED": {
+      "pilot": 1,
+      "reported": 2,
+      "stems": 3
+    },
+    "S:ANSWER+ANSWER+ANSWER": {
+      "pilot": 2,
+      "reported": 4,
+      "stems": 6
+    }
+  },
+  "pilot_fraction": 0.25,
+  "roles": {
+    "pilot": "development surface. The corpus author saw these items while authoring, so a pilot score is not a second measurement.",
+    "reported": "evaluated once, on the reported run, over the pinned checkpoints."
+  },
+  "schema_version": 1,
+  "seed": "tool-choice-contrast-v1",
+  "sibling_integrity": "every arm of a stem lands on the same side; asserted at build and re-asserted at verify",
+  "sides": {
+    "pilot": {
+      "example_ids": [
+        "tcc-v1/E/0001/absent",
+        "tcc-v1/E/0001/applicable",
+        "tcc-v1/E/0001/underspecified",
+        "tcc-v1/S/0003/five",
+        "tcc-v1/S/0003/none",
+        "tcc-v1/S/0003/one",
+        "tcc-v1/S/0004/five",
+        "tcc-v1/S/0004/none",
+        "tcc-v1/S/0004/one"
+      ],
+      "fingerprint": "a4df804813b624f25d41e6a8ef5bc7684cb8d8b518d562c939f5d68036b0c86b",
+      "items": 9,
+      "stem_ids": [
+        "tcc-v1/E/0001",
+        "tcc-v1/S/0003",
+        "tcc-v1/S/0004"
+      ],
+      "stems": 3
+    },
+    "reported": {
+      "example_ids": [
+        "tcc-v1/E/0002/absent",
+        "tcc-v1/E/0002/applicable",
+        "tcc-v1/E/0002/underspecified",
+        "tcc-v1/E/0003/absent",
+        "tcc-v1/E/0003/applicable",
+        "tcc-v1/E/0003/underspecified",
+        "tcc-v1/S/0001/five",
+        "tcc-v1/S/0001/none",
+        "tcc-v1/S/0001/one",
+        "tcc-v1/S/0002/five",
+        "tcc-v1/S/0002/none",
+        "tcc-v1/S/0002/one",
+        "tcc-v1/S/0005/five",
+        "tcc-v1/S/0005/none",
+        "tcc-v1/S/0005/one",
+        "tcc-v1/S/0006/five",
+        "tcc-v1/S/0006/none",
+        "tcc-v1/S/0006/one"
+      ],
+      "fingerprint": "96f4194956bf8dd7c64f42795f100c53ea5dfbc9e59f9e0548f68b2d17e18790",
+      "items": 18,
+      "stem_ids": [
+        "tcc-v1/E/0002",
+        "tcc-v1/E/0003",
+        "tcc-v1/S/0001",
+        "tcc-v1/S/0002",
+        "tcc-v1/S/0005",
+        "tcc-v1/S/0006"
+      ],
+      "stems": 6
+    }
+  }
+}

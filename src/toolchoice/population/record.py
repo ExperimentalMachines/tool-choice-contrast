@@ -23,7 +23,11 @@ REQUIRED_FIELDS = (
 
 TOOL_ROLES = frozenset({"APPLICABLE", "DISTRACTOR", "UNDERSPECIFIED_VARIANT"})
 ADJUDICATION_VERDICTS = frozenset({"ACCEPTED", "CHANGED", "ESCALATED_RESOLVED"})
-LABEL_STATUSES = frozenset({"LABELED", "AMBIGUOUS_EXCLUDED", "AMBIGUOUS_DUAL_GOLD"})
+#: PENDING exists so a population can be built and gated before anyone labels it. A frozen
+#: release must contain zero PENDING items -- gate G7 enforces that, and it is the only thing
+#: standing between "expanded" and "adjudicated".
+PENDING = "PENDING"
+LABEL_STATUSES = frozenset({PENDING, "LABELED", "AMBIGUOUS_EXCLUDED", "AMBIGUOUS_DUAL_GOLD"})
 
 
 class RecordError(ValueError):
@@ -96,16 +100,23 @@ def validate(record: dict[str, Any]) -> None:
 
 def _validate_label_provenance(record: dict[str, Any]) -> None:
     lp = record["label_provenance"]
-    if lp.get("label_authority") != "HUMAN":
-        raise RecordError("REC_LABEL_AUTHORITY", str(lp.get("label_authority")))
     if lp.get("status") not in LABEL_STATUSES:
         raise RecordError("REC_LABEL_STATUS", str(lp.get("status")))
 
     proposal, adjudication = lp.get("proposal"), lp.get("adjudication")
+    if lp["status"] == PENDING:
+        # Unlabelled is a legitimate build state; it is not a legitimate release state.
+        if proposal is not None or adjudication is not None:
+            raise RecordError("REC_PENDING_WITH_LABELS", record["example_id"])
+        if lp.get("label_authority") != "HUMAN":
+            raise RecordError("REC_LABEL_AUTHORITY", str(lp.get("label_authority")))
+        return
     if not isinstance(proposal, dict):
         raise RecordError("REC_NO_MODEL_PROPOSAL", record["example_id"])
     if not isinstance(adjudication, dict):
         raise RecordError("REC_NO_HUMAN_ADJUDICATION", record["example_id"])
+    if lp.get("label_authority") != "HUMAN":
+        raise RecordError("REC_LABEL_AUTHORITY", str(lp.get("label_authority")))
     # The two are siblings and are never merged. There is no top-level `label`.
     if "label" in lp:
         raise RecordError("REC_MERGED_LABEL", record["example_id"])

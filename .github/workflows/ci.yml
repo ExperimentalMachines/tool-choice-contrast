@@ -23,6 +23,12 @@ jobs:
       # The controls must reproduce their committed outcomes. A scorer change that moves a
       # control's verdict is a change to what every published number means.
       - run: uv run tcc controls --verify
+      # A rebuild must reproduce both fingerprints, and the partition must reproduce both side
+      # fingerprints. `tcc gates` is deliberately NOT run here yet: on the seed corpus G4 and G7
+      # fail by design, and a CI step that is expected to fail teaches everyone to ignore it.
+      # tests/verification/test_gates.py pins that expected state instead.
+      - run: uv run tcc population build --verify
+      - run: uv run tcc population partition --verify
 
   vendor-parity:
     runs-on: ubuntu-latest

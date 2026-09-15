@@ -18,7 +18,7 @@ build = ["pyyaml>=6.0"]
 release = ["pyyaml>=6.0", "pyarrow>=15.0"]
 local = ["llama-cpp-python>=0.3"]
 gpu = ["torch>=2.6", "transformers>=4.50", "pyyaml>=6.0"]
-dev = ["pytest>=8.0", "ruff>=0.6", "mypy>=1.11", "pyyaml>=6.0", "pyarrow>=15.0"]
+dev = ["pytest>=8.0", "ruff>=0.6", "mypy>=1.11", "pyyaml>=6.0", "types-PyYAML", "pyarrow>=15.0"]
 
 [project.scripts]
 tcc = "toolchoice.cli:main"
@@ -26,13 +26,15 @@ tcc-verify = "toolchoice.verification.gates:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/toolchoice"]
+# The vendored scorer and its provenance record must ship with the package.
+artifacts = ["src/toolchoice/_vendor/**/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
 # The vendored tree imports as `opengrad`, the same trick upstream uses for its
 # own third_party drop.
-pythonpath = [".", "src", "third_party/opengrad"]
+pythonpath = [".", "src"]
 markers = [
   "network: resolves upstream pins over the network; excluded from the deterministic suite.",
   "model: requires a local model; excluded from CI.",
@@ -41,7 +43,7 @@ markers = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = ["third_party"]
+extend-exclude = ["src/toolchoice/_vendor"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -49,8 +51,8 @@ strict = true
 # The vendored tree must resolve so our own annotations against it are checked,
 # but it is never itself type-checked: it is byte-identical to upstream and
 # fixing a type error there would fork it.
-mypy_path = ["src", "third_party/opengrad"]
-exclude = ["third_party/"]
+mypy_path = ["src", "src/toolchoice/_vendor"]
+exclude = ["src/toolchoice/_vendor/"]
 
 [[tool.mypy.overrides]]
 module = "opengrad.*"

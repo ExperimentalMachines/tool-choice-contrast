@@ -1,0 +1,79 @@
+{
+  "all_passed": true,
+  "artifact_kind": "CONTROL_SUITE",
+  "contract": 1,
+  "controls": [
+    {
+      "backend": "MOCK",
+      "checks": {
+        "call_recall_is_one": true,
+        "clarify_accuracy_is_one": true,
+        "daa_baseline_is_one": true,
+        "no_flips": true,
+        "unsupported_accuracy_is_one": true
+      },
+      "control_id": "C1",
+      "description": "oracle: emits each arm's gold behaviour",
+      "passed": true,
+      "proves": "the scorer can score a perfect policy"
+    },
+    {
+      "backend": "MOCK",
+      "checks": {
+        "flips_almost_always": true,
+        "flips_are_calls": true,
+        "no_call_accuracy_collapses": true,
+        "no_refusal_flips": true
+      },
+      "control_id": "C2",
+      "description": "always calls when any tool is offered",
+      "passed": true,
+      "proves": "detects the spurious-call flip direction, distinct from refusal"
+    },
+    {
+      "backend": "MOCK",
+      "checks": {
+        "daa_is_zero": true,
+        "tps_is_undefined": true,
+        "tps_point_is_null": true,
+        "unsupported_still_right": true
+      },
+      "control_id": "C3",
+      "description": "refuses everything, the M0 shape",
+      "passed": true,
+      "proves": "the headline metric reports UNDEFINED instead of a misleading 0.0"
+    },
+    {
+      "backend": "MOCK",
+      "checks": {
+        "daa_baseline_is_one": true,
+        "daa_collapses_with_tools": true,
+        "flips_almost_always": true,
+        "flips_are_refusals": true,
+        "no_spurious_calls": true,
+        "one_tool_is_enough": true
+      },
+      "control_id": "C4",
+      "description": "answers bare questions, refuses once tools appear",
+      "passed": true,
+      "proves": "THE control: the corpus detects the regression it exists to catch"
+    },
+    {
+      "backend": "MOCK",
+      "checks": {
+        "arm_reports_unmeasurable": true,
+        "flips_are_parse_failures": true,
+        "nothing_scored_on_that_arm": true,
+        "parse_failures_are_visible": true
+      },
+      "control_id": "C6",
+      "description": "correct behaviour, malformed payloads on S-five",
+      "passed": true,
+      "proves": "a parse failure is not counted as a direct answer"
+    }
+  ],
+  "overall": "PASS",
+  "population_items": 156,
+  "render": "[PASS] control_C1  {'discovered': 5, 'checked': 5, 'passed': 5, 'failed': 0, 'blocked': 0, 'skipped': 0}\n[PASS] control_C2  {'discovered': 4, 'checked': 4, 'passed': 4, 'failed': 0, 'blocked': 0, 'skipped': 0}\n[PASS] control_C3  {'discovered': 4, 'checked': 4, 'passed': 4, 'failed': 0, 'blocked': 0, 'skipped': 0}\n[PASS] control_C4  {'discovered': 6, 'checked': 6, 'passed': 6, 'failed': 0, 'blocked': 0, 'skipped': 0}\n[PASS] control_C6  {'discovered': 4, 'checked': 4, 'passed': 4, 'failed': 0, 'blocked': 0, 'skipped': 0}\n\nEXECUTION COVERAGE (contract v1)\nGate         Disc   Chk  Pass  Fail   Blk  Skip\n-----------------------------------------------\ncontrol_C1      5     5     5     0     0     0\ncontrol_C2      4     4     4     0     0     0\ncontrol_C3      4     4     4     0     0     0\ncontrol_C4      6     6     6     0     0     0\ncontrol_C6      4     4     4     0     0     0\n\noverall: PASS",
+  "schema_version": 1
+}

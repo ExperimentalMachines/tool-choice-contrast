@@ -15,7 +15,7 @@ import pathlib
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-VENDOR = ROOT / "third_party" / "opengrad"
+VENDOR = ROOT / "src" / "toolchoice" / "_vendor"
 PROVENANCE = json.loads((VENDOR / "PROVENANCE.json").read_text(encoding="utf-8"))
 
 

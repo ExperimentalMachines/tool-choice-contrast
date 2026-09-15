@@ -20,6 +20,9 @@ jobs:
       # a run that could not reach GitHub has not verified the vendor pin, and
       # saying so is the point of the marker.
       - run: uv run pytest -m "not network and not model"
+      # The controls must reproduce their committed outcomes. A scorer change that moves a
+      # control's verdict is a change to what every published number means.
+      - run: uv run tcc controls --verify
 
   vendor-parity:
     runs-on: ubuntu-latest

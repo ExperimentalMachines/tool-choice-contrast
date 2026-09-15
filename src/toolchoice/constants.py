@@ -89,3 +89,9 @@ def normalize_prompt(text: str) -> str:
     makes the reimplementation safe -- it reproduces upstream's published counts exactly.
     """
     return " ".join(str(text).split()).casefold()
+
+
+# Every E arm offers the capability-bearing tool plus this many distractors, so len(tools) is
+# exactly equal across the three arms and catalogue size cannot explain a behaviour change
+# (rubric E.4.5). Gate G5 asserts the equality rather than testing it statistically.
+E_DISTRACTOR_COUNT = 2

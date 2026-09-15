@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+
+# The canonical record is committed; the bulk it was derived from is not.
+data/labels/raw_proposals/
+runs/**
+!runs/**/
+!runs/**/run.json
+!runs/**/environment.json
+!runs/**/scores.json
+!runs/**/contrast.json
+runs/**/generations.jsonl
+runs/**/per_example.jsonl
+runs/**/*.tmp
+
+.release/**
+!.release/**/
+!.release/hf/tcc-v1/release-manifest.json

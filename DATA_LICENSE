@@ -1,0 +1,19 @@
+The tool-choice-contrast corpus (every file under `data/` and every row of the
+published Hugging Face dataset) is licensed under Creative Commons
+Attribution 4.0 International (CC-BY-4.0).
+
+    https://creativecommons.org/licenses/by/4.0/
+
+The code in this repository is licensed separately, under Apache-2.0; see
+LICENSE. The two are deliberately different files: a data licence and a code
+licence are different grants, and conflating them in one LICENSE misstates both.
+
+Family S stems are derived from:
+
+  - openai/gsm8k, revision 740312add88f781978c0658806c59bc2815b9866 (MIT)
+    Cobbe et al. 2021, arXiv:2110.14168
+  - TIGER-Lab/MMLU-Pro, revision b189ec765aa7ed75c8acfea42df31fdae71f97be (MIT)
+    Wang et al. 2024, arXiv:2406.01574
+
+Both upstream licences permit redistribution with attribution. Family E stems
+are original.

@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tool-choice-contrast"
+version = "0.1.0"
+description = "A frozen ANSWER-behaviour evaluation corpus: same question, different tool context."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+# Core has zero runtime dependencies, mirroring the upstream convention. A
+# benchmark's scorer must run from its own tarball on an air-gapped box.
+dependencies = []
+
+[project.optional-dependencies]
+build = ["pyyaml>=6.0"]
+release = ["pyyaml>=6.0", "pyarrow>=15.0"]
+local = ["llama-cpp-python>=0.3"]
+gpu = ["torch>=2.6", "transformers>=4.50", "pyyaml>=6.0"]
+dev = ["pytest>=8.0", "ruff>=0.6", "mypy>=1.11", "pyyaml>=6.0", "pyarrow>=15.0"]
+
+[project.scripts]
+tcc = "toolchoice.cli:main"
+tcc-verify = "toolchoice.verification.gates:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/toolchoice"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+# The vendored tree imports as `opengrad`, the same trick upstream uses for its
+# own third_party drop.
+pythonpath = [".", "src", "third_party/opengrad"]
+markers = [
+  "network: resolves upstream pins over the network; excluded from the deterministic suite.",
+  "model: requires a local model; excluded from CI.",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["third_party"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+exclude = ["third_party/"]

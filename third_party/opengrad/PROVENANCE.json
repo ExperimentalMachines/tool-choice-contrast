@@ -1,0 +1,95 @@
+{
+  "artifact_kind": "VENDOR_PROVENANCE",
+  "extracted_functions": {
+    "src/opengrad/evaluation/candidate.py::compare_routing": {
+      "reason": "candidate.py imports yaml, the experiment store and env_capture; whole-file vendoring would pull a training-lifecycle subsystem into a benchmark package.",
+      "status": "PENDING",
+      "vendored_to": "src/toolchoice/scoring/compare.py"
+    }
+  },
+  "files": {
+    "opengrad/__init__.py": {
+      "bytes": 105,
+      "sha256": "dfb634dfab1846b1889cd72621c80d84072509877a9f6b0f79a1258e2c32d92b",
+      "upstream_path": "src/opengrad/__init__.py"
+    },
+    "opengrad/data/behavior.py": {
+      "bytes": 1895,
+      "sha256": "9302a471375bdc9059440aa313ed47e74d0b7f9d0afdc2d7caa2106e9785eba9",
+      "upstream_path": "src/opengrad/data/behavior.py"
+    },
+    "opengrad/data/canonical.py": {
+      "bytes": 8451,
+      "sha256": "fac4488b0a7589f48c96856c0151d659b8ab49bad5c7c9619d663bb6294d2e4c",
+      "upstream_path": "src/opengrad/data/canonical.py"
+    },
+    "opengrad/data/schema.py": {
+      "bytes": 9593,
+      "sha256": "214cf6dc6fc3ad488fb3ebd4bae3dbf918122c009d4ed8d965420f3eff79ef84",
+      "upstream_path": "src/opengrad/data/schema.py"
+    },
+    "opengrad/data/supervision.py": {
+      "bytes": 10135,
+      "sha256": "6fc849d1c151c936cb80fe5b234a0a7f33c8444c60307d187591eb9dac89413d",
+      "upstream_path": "src/opengrad/data/supervision.py"
+    },
+    "opengrad/evaluation/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "upstream_path": "src/opengrad/evaluation/__init__.py"
+    },
+    "opengrad/evaluation/capability.py": {
+      "bytes": 9014,
+      "sha256": "c876c7530c86f4d1b14cda6e7d961f29fd93bca00a8a9bfc00411d98341720d0",
+      "upstream_path": "src/opengrad/evaluation/capability.py"
+    },
+    "opengrad/evaluation/routing.py": {
+      "bytes": 2012,
+      "sha256": "a4861ae8638a6a15a1ebd9bad7a85d296c7c1b76eba0323602e0aab72cbbe818",
+      "upstream_path": "src/opengrad/evaluation/routing.py"
+    },
+    "opengrad/formatting/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "upstream_path": "src/opengrad/formatting/__init__.py"
+    },
+    "opengrad/formatting/parser.py": {
+      "bytes": 8185,
+      "sha256": "7504804e54a624ea83fbd075faabc348b114f4f950400579dadf973d40c8e4e1",
+      "upstream_path": "src/opengrad/formatting/parser.py"
+    },
+    "opengrad/verification/__init__.py": {
+      "bytes": 1594,
+      "sha256": "3a53f0497c513aebbefd7ec93a7e194c98f6e01cf92b7f5630336af636e2cc22",
+      "upstream_path": "src/opengrad/verification/__init__.py"
+    },
+    "opengrad/verification/accounting.py": {
+      "bytes": 8720,
+      "sha256": "8fe898c224b4af4c4d3ce6c5ecd55791d8bfdd28c0793d5c289f6c2a721e0916",
+      "upstream_path": "src/opengrad/verification/accounting.py"
+    }
+  },
+  "license": "Apache-2.0",
+  "modification_policy": "Never edited. If a vendored function is wrong, the finding is reported upstream and this benchmark reports the upstream behaviour intact, because a score produced by a divergent copy is not comparable to an OpenGrad score.",
+  "modified": false,
+  "not_vendored": [
+    "src/opengrad/evaluation/runner.py -- its InferenceBackend protocol passes CanonicalEvaluationExample to the backend, exposing expected_decision. toolchoice.harness.protocol uses the benchmarks-side shape instead.",
+    "src/opengrad/data/renderers.py -- prompt rendering is model-specific and is reimplemented in toolchoice.harness.prompt against the published chat template."
+  ],
+  "package": "opengrad",
+  "replaced_files": {
+    "opengrad/data/__init__.py": {
+      "bytes": 643,
+      "reason": "Upstream re-exports adapters, materialize, normalize and renderers, none of which are vendored. All vendored modules import siblings absolutely, so an empty package init is sufficient.",
+      "sha256": "ea2f67c87db1dd67a57a6f56be06bdca08c98d08baf4b3d6077e53e1d9d5ad58",
+      "upstream_path": "src/opengrad/data/__init__.py"
+    }
+  },
+  "runtime_dependencies": [
+    "pyyaml (opengrad/data/behavior.py module-level import only; DECISIONS itself needs none)"
+  ],
+  "schema_version": 1,
+  "upstream_commit": "62a5721b44cb07ebdb26de706be4915d9ddd8c71",
+  "upstream_repo": "https://github.com/arjhinety/OpenGrad",
+  "vendoring_rationale": "The upstream core declares dependencies = []; a git dependency would make a published benchmark's scorer contingent on a third-party repository staying reachable at a mutable ref. Reimplementation is rejected because parse_qwen_native_output is deliberately byte-compatible with openweights' Kotlin ToolCallParser, and a third copy of a three-way contract has nothing keeping it aligned."
+}

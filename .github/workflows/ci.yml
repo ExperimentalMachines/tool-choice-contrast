@@ -1,0 +1,30 @@
+name: quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Freeze gates check that recorded evidence commits are ancestors of HEAD.
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra dev
+      - run: uv run ruff check .
+      - run: uv run mypy src
+      # The deterministic suite. Network and model marked tests are excluded:
+      # a run that could not reach GitHub has not verified the vendor pin, and
+      # saying so is the point of the marker.
+      - run: uv run pytest -m "not network and not model"
+
+  vendor-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra dev
+      - run: uv run pytest tests/vendor -m network

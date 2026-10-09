@@ -15,7 +15,7 @@ from toolchoice.scoring.contrast import (
     group_by_stem,
     tool_presence_sensitivity,
 )
-from toolchoice.scoring.decide import decide
+from toolchoice.scoring.decide import ToolFormat, decide
 
 ARTIFACT_KIND = "CONTRAST_SCORES"
 
@@ -31,7 +31,12 @@ def _answer_is_correct(content: str, gold_answer: dict[str, Any] | None) -> bool
     return bool(value) and value in content
 
 
-def score(items: Sequence[dict[str, Any]], generations: Sequence[dict[str, Any]]) -> dict[str, Any]:
+def score(
+    items: Sequence[dict[str, Any]],
+    generations: Sequence[dict[str, Any]],
+    *,
+    tool_format: ToolFormat = "qwen",
+) -> dict[str, Any]:
     by_id = {row["example_id"]: row for row in generations}
     missing = [item["example_id"] for item in items if item["example_id"] not in by_id]
     if missing:
@@ -40,7 +45,8 @@ def score(items: Sequence[dict[str, Any]], generations: Sequence[dict[str, Any]]
     outcomes: list[Outcome] = []
     for item in items:
         row = by_id[item["example_id"]]
-        decision = decide(row["output"], truncated=row.get("finish_reason") == "length")
+        decision = decide(row["output"], truncated=row.get("finish_reason") == "length",
+                          tool_format=tool_format)
         stem_id, arm = parse_example_id(item["example_id"])
         outcomes.append(Outcome(
             example_id=item["example_id"], stem_id=stem_id, arm=arm,
@@ -51,6 +57,7 @@ def score(items: Sequence[dict[str, Any]], generations: Sequence[dict[str, Any]]
     return {
         "schema_version": 1,
         "artifact_kind": ARTIFACT_KIND,
+        "tool_format": tool_format,
         "items": len(outcomes),
         "routing": _routing(outcomes),
         "coverage": _coverage(outcomes),

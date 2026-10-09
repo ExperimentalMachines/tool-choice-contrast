@@ -23,6 +23,11 @@ measured, including the baseline. The metric existed and never had a denominator
 900 items over 300 stems. Every arm of a stem shares a byte-identical question;
 that invariant is gate G3 and without it every number is void.
 
+Replies are parsed in the model's native tool format: `qwen` by default, `lfm`
+for LFM2.5's `<|tool_call_start|>[name(arg="v")]<|tool_call_end|>` calls. Every
+score names the format it was parsed with. A reply without a tool call is decided
+by the same prose rules under both formats.
+
 ## Status
 
 Under construction. Nothing is frozen and nothing has been measured.

@@ -3,15 +3,33 @@
 ``parse_qwen_native_output`` returns decision "ANSWER" on every FORMAT_ERROR path. Reusing its
 decision verbatim would let a truncated generation count as a direct answer and inflate the
 headline metric, so status is consulted first and a format error never becomes a decision.
+
+Each model family writes tool calls in its own native format, so the run's tool format picks the
+parser. Every parser returns the same ``ParsedNativeOutput`` and the rule above holds for all.
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from typing import Any, Literal, get_args
 
 from opengrad.data.behavior import DECISIONS
 from opengrad.evaluation.capability import RefusalVerdict, detect_refusal
-from opengrad.formatting.parser import parse_qwen_native_output
+from opengrad.formatting.parser import ParsedNativeOutput, parse_qwen_native_output
+
+from toolchoice.formatting.lfm import parse_lfm_native_output
+
+ToolFormat = Literal["qwen", "lfm"]
+
+#: What a reply that calls no tool can decide. Only these go to a prose classifier.
+ProseDecision = Literal["ANSWER", "CLARIFY", "UNSUPPORTED"]
+PROSE_DECISIONS: tuple[ProseDecision, ...] = get_args(ProseDecision)
+
+PARSERS: Mapping[ToolFormat, Callable[..., ParsedNativeOutput]] = {
+    "qwen": parse_qwen_native_output,
+    "lfm": parse_lfm_native_output,
+}
 
 PARSE_FAILURE = "PARSE_FAILURE"
 
@@ -31,10 +49,12 @@ class Decision:
         return self.decision in DECISIONS
 
 
-def decide(raw: str | None, *, truncated: bool = False) -> Decision:
+def decide(
+    raw: str | None, *, truncated: bool = False, tool_format: ToolFormat = "qwen"
+) -> Decision:
     if raw is None or not raw.strip():
         return Decision(PARSE_FAILURE, "EMPTY", detect_refusal(raw), "", ())
-    parsed = parse_qwen_native_output(raw, truncated=truncated)
+    parsed = PARSERS[tool_format](raw, truncated=truncated)
     refusal = detect_refusal(parsed.content or raw)
     names = tuple(call.name for call in parsed.calls)
     if parsed.status != "RAW_VALID":
@@ -45,3 +65,9 @@ def decide(raw: str | None, *, truncated: bool = False) -> Decision:
     if decision not in DECISIONS:
         return Decision(PARSE_FAILURE, "UNMAPPED_DECISION", refusal, parsed.content or "", names)
     return Decision(decision, parsed.status, refusal, parsed.content or "", names)
+
+
+def decide_generation(row: Mapping[str, Any], *, tool_format: ToolFormat) -> Decision:
+    """The decision for one generation row from ``run_population``."""
+    return decide(row["output"], truncated=row.get("finish_reason") == "length",
+                  tool_format=tool_format)

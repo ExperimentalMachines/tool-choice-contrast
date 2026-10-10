@@ -11,6 +11,10 @@ from typing import Any
 from toolchoice.io import dumps_artifact, write_json_atomic
 
 
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+
+
 def _handle_controls(args: argparse.Namespace, root: Path) -> int:
     from toolchoice.scoring.run_controls import run_all
     from toolchoice.stems.synthetic import population
@@ -72,7 +76,7 @@ def _handle_partition(args: argparse.Namespace, root: Path) -> int:
     if not population.exists():
         print(f"no population at {args.population}")
         return 2
-    records = [json.loads(line) for line in population.read_text(encoding="utf-8").splitlines() if line]
+    records = _read_jsonl(population)
     payload = partition(records, pilot_fraction=args.pilot_fraction)
     problems = check_integrity(payload)
     if problems:
@@ -108,6 +112,21 @@ def _handle_gates(args: argparse.Namespace, root: Path) -> int:
     if args.json:
         argv.append("--json")
     return gates_main(argv)
+
+
+def _handle_judge(args: argparse.Namespace, root: Path) -> int:
+    from toolchoice.scoring.judge import OllamaJudge, judge_generations, write_judgments
+
+    items = _read_jsonl(root / args.population)
+    generations = _read_jsonl(root / args.generations)
+    judgments = judge_generations(items, generations, tool_format=args.tool_format,
+                                  judge=OllamaJudge(args.model, args.host))
+    if not judgments:
+        print(f"no reply in {args.generations} decides without a tool call; nothing to judge")
+        return 2
+    write_judgments(root / args.out, judgments)
+    print(f"judged {len(judgments)} of {len(generations)} replies with {args.model}; wrote {args.out}")
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -153,6 +172,15 @@ def build_parser() -> argparse.ArgumentParser:
     gates.add_argument("--minimum-per-mode", type=int, default=150)
     gates.add_argument("--json", action="store_true")
     gates.set_defaults(handler=_handle_gates)
+
+    judge = subparsers.add_parser("judge", help="judge replies without a tool call with a local model")
+    judge.add_argument("--population", type=Path, default=Path("data/frozen/tcc-v1/population.jsonl"))
+    judge.add_argument("--generations", type=Path, required=True)
+    judge.add_argument("--tool-format", choices=("qwen", "lfm"), required=True)
+    judge.add_argument("--model", required=True, help="an ollama model name, e.g. qwen3.5:9b")
+    judge.add_argument("--host", default="http://127.0.0.1:11434")
+    judge.add_argument("--out", type=Path, required=True)
+    judge.set_defaults(handler=_handle_judge)
 
     return parser
 

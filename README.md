@@ -23,6 +23,18 @@ measured, including the baseline. The metric existed and never had a denominator
 900 items over 300 stems. Every arm of a stem shares a byte-identical question;
 that invariant is gate G3 and without it every number is void.
 
+Replies are parsed in the model's native tool format: `qwen` by default, `lfm`
+for LFM2.5's `<|tool_call_start|>[name(arg="v")]<|tool_call_end|>` calls. Every
+score names the format it was parsed with. A reply without a tool call is decided
+by the same prose rules under both formats.
+
+Those prose rules default to the keyword rules in the vendored OpenGrad parser,
+which miss declines such as "I don't have access to banking systems". `tcc judge`
+asks a pinned local model to decide each reply without a tool call and writes the
+judgments to a file. `score(..., judgments=read_judgments(path))` uses them in place
+of the keyword rules and never calls a model itself. Every score names its prose
+classifier: the keyword rules, or the judge's model, digest and prompt hash.
+
 ## Status
 
 Under construction. Nothing is frozen and nothing has been measured.

@@ -15,7 +15,7 @@ from toolchoice.scoring.contrast import (
     group_by_stem,
     tool_presence_sensitivity,
 )
-from toolchoice.scoring.decide import ToolFormat, decide
+from toolchoice.scoring.decide import ToolFormat, decide_generation
 
 ARTIFACT_KIND = "CONTRAST_SCORES"
 
@@ -45,8 +45,7 @@ def score(
     outcomes: list[Outcome] = []
     for item in items:
         row = by_id[item["example_id"]]
-        decision = decide(row["output"], truncated=row.get("finish_reason") == "length",
-                          tool_format=tool_format)
+        decision = decide_generation(row, tool_format=tool_format)
         stem_id, arm = parse_example_id(item["example_id"])
         outcomes.append(Outcome(
             example_id=item["example_id"], stem_id=stem_id, arm=arm,

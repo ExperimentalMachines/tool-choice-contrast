@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal, get_args
 
 from opengrad.data.behavior import DECISIONS
 from opengrad.evaluation.capability import RefusalVerdict, detect_refusal
@@ -21,6 +21,10 @@ from opengrad.formatting.parser import ParsedNativeOutput, parse_qwen_native_out
 from toolchoice.formatting.lfm import parse_lfm_native_output
 
 ToolFormat = Literal["qwen", "lfm"]
+
+#: What a reply that calls no tool can decide. Only these go to a prose classifier.
+ProseDecision = Literal["ANSWER", "CLARIFY", "UNSUPPORTED"]
+PROSE_DECISIONS: tuple[ProseDecision, ...] = get_args(ProseDecision)
 
 PARSERS: Mapping[ToolFormat, Callable[..., ParsedNativeOutput]] = {
     "qwen": parse_qwen_native_output,
@@ -61,3 +65,9 @@ def decide(
     if decision not in DECISIONS:
         return Decision(PARSE_FAILURE, "UNMAPPED_DECISION", refusal, parsed.content or "", names)
     return Decision(decision, parsed.status, refusal, parsed.content or "", names)
+
+
+def decide_generation(row: Mapping[str, Any], *, tool_format: ToolFormat) -> Decision:
+    """The decision for one generation row from ``run_population``."""
+    return decide(row["output"], truncated=row.get("finish_reason") == "length",
+                  tool_format=tool_format)
